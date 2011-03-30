@@ -3,10 +3,27 @@
 #include <inttypes.h>
 
 //INPUT PINS digital 2-7 PIND
+#define PIND_MASK B11111100
 //INPUT PINS digitat 8-12 PINB
+#define PINB_MASK B00011111
 //INPUT PINS analog 0-4 PINC
+#define PINC_MASK B00011111
 
-#define RF433_PIN 10
+#define INPUT_SIG_PORTD B11111111
+#define INPUT_SIG_PORTC B11111111
+#define INPUT_SIG_PORTB B11111111
+union union16 {
+  byte uint8[2];
+  uint16_t uint16;
+}; 
+
+union union32 {
+  byte uint8[4];
+  uint16_t uint16[2];
+  uint32_t uint32;
+}; 
+
+
 //********************************************************************//
 
 typedef unsigned char byte;
@@ -31,12 +48,46 @@ void stop_timer() // stop the timer
   TIMSK1 = 0; // disable timer interrupt
 }
 
-ISR(TIMER1_COMPA_vect)
-{
-// Serial.print('a');
+static void PCint(uint8_t port) {
+  union32 data;
+  data.uint32=0;
+  data.uint8[0]=PIND;
+  data.uint8[1]=PINC;
+  data.uint8[2]=PINB;
+  data.uint8[0]|= !PIND_MASK;
+  data.uint8[1]|= !PINC_MASK;
+  data.uint8[2]|= !PINB_MASK;
+  data.uint8[3]=0xff;
+  //PINS with signal:
+  //1
+  //3
+  //9
+  //14
+  //15
+  //21
+  //22
+  //23
+
+  for(int i=0;i<32; i++)
+  {
+    if (! (data.uint32 & 1 ))
+      Serial.println(i);
+    data.uint32>>=1;
+  }
+  //Serial.print(data.uint8[1]);
 }
 
 
+
+SIGNAL(PCINT0_vect) {
+  PCint(0);
+}
+SIGNAL(PCINT1_vect) {
+  PCint(1);
+}
+SIGNAL(PCINT2_vect) {
+  PCint(2);
+}
 void setup()
 {
 //  pinMode(RF433_PIN, INPUT);      // set pin to input
@@ -47,32 +98,27 @@ void setup()
   PORTB=0;
   DDRD = DDRD & 3;
   PORTD= PORTD & 3;
+
   DDRC=0;
   PORTC=0;
   Serial.begin(57600);
-  Serial.println("starting timer");
+  //Serial.println("starting timer");
+  PCMSK0=PINB_MASK & INPUT_SIG_PORTB;
+  PCMSK1=PINC_MASK & INPUT_SIG_PORTC;
+  PCMSK2=PIND_MASK & INPUT_SIG_PORTD;
+  PCICR|= B111;
+
 //  start_timer();
 }
 
-union union16 {
-  byte uint8[2];
-  uint16_t uint16;
-}; 
 
 //INPUT PINS digital 2-7 PIND
 //INPUT PINS digitat 8-12 PINB
 //INPUT PINS analog 0-4 PINC
 void loop()
 {
-//  Serial.println("foo");
+//  Serial.Serial.println("foo");
 //  return;
 
-  union16 data;
-  data.uint8[0]=PIND;
-  data.uint16<<=3;
-  data.uint8[0]|= (PINC & B11111);
-  data.uint16<<=5; 
-  data.uint8[0]|= (PINB & B11111);
-  Serial.print(data.uint8[0]);
-  Serial.print(data.uint8[1]);
+
 }
