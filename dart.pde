@@ -30,19 +30,14 @@ union union32 {
   uint32_t uint32;
 }; 
 
-
-//********************************************************************//
-
 typedef unsigned char byte;
 
-//********************************************************************//
-/*
 void start_timer()
 {
   // timer 1: 2 ms
   TCCR1A = 0;                    // prescaler 1:8, WGM = 4 (CTC)
-  TCCR1B = 1<<WGM12 | 1<<CS11;   // 
-  OCR1A = 159;        // (1+159)*8 = 1280 -> 0.08ms @ 16 MHz -> 1*alpha
+  TCCR1B = 1<<WGM12 | 1<<CS10  | 1<<CS11;    // 
+  OCR1A = 65000;        // (1+159)*8 = 1280 -> 0.08ms @ 16 MHz -> 1*alpha
 //  OCR1A = 207;        // (1+207)*8 = 1664 -> 0.104ms @ 16 MHz -> 1*alpha
   TCNT1 = 0;          // reseting timer
   TIMSK1 = 1<<OCIE1A; // enable Interrupt
@@ -54,7 +49,14 @@ void stop_timer() // stop the timer
   TCCR1B = 0; // no clock source
   TIMSK1 = 0; // disable timer interrupt
 }
-*/
+
+ISR(TIMER1_COMPA_vect)
+{
+  stop_timer();
+  PCICR|= B111;
+}
+
+
 byte last_input=0;
 byte last_output=0;
 static void PCint() {
@@ -66,14 +68,26 @@ static void PCint() {
  
   if (!input)
    return;
-  if (last_input==input && last_output==output)
-    return;
+  if (!output)
+   return;
+  //if (last_input==input && last_output==output)
+    //return;
   last_input=input;
   last_output=output;
-  Serial.print(output,HEX);
-  Serial.print('\t');
-  Serial.println(input,HEX);
-  return;
+//  Serial.print(output,HEX);
+//  Serial.print('\t');
+//  Serial.print(input,HEX);
+//  Serial.print('\t');
+
+  byte value=0;
+  while(input>>=1)
+    value++;
+  value<<=3;
+  while(output>>=1)
+    value++;
+  Serial.println(value,HEX);
+  PCICR&=  ~ B111; // Disable Interrupt
+  start_timer();
 }
 
 
@@ -106,7 +120,6 @@ void setup()
   PCMSK1=PINC_MASK & INPUT_SIG_PORTC;
   PCMSK2=PIND_MASK & INPUT_SIG_PORTD;
   PCICR|= B111;
-
 //  start_timer();
 }
 
@@ -118,6 +131,4 @@ void loop()
 {
 //  Serial.Serial.println("foo");
 //  return;
-
-
 }
