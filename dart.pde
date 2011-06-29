@@ -9,9 +9,9 @@
 //INPUT PINS analog 0-4 PINC
 #define PINC_MASK B00011111
 
-#define INPUT_SIG_PORTD B11111111
-#define INPUT_SIG_PORTC B11111111
-#define INPUT_SIG_PORTB B11111111
+#define INPUT_SIG_PORTD B11000000
+#define INPUT_SIG_PORTB B00011111
+#define INPUT_SIG_PORTC B00010000
 union union16 {
   byte uint8[2];
   uint16_t uint16;
@@ -29,7 +29,7 @@ union union32 {
 typedef unsigned char byte;
 
 //********************************************************************//
-
+/*
 void start_timer()
 {
   // timer 1: 2 ms
@@ -47,8 +47,10 @@ void stop_timer() // stop the timer
   TCCR1B = 0; // no clock source
   TIMSK1 = 0; // disable timer interrupt
 }
-
+*/
 static void PCint(uint8_t port) {
+  Serial.println(port);
+  return;
   union32 data;
   data.uint32=0;
   data.uint8[0]=PIND;
