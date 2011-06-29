@@ -12,6 +12,13 @@
 #define INPUT_SIG_PORTD B11000000
 #define INPUT_SIG_PORTB B00011111
 #define INPUT_SIG_PORTC B00010000
+
+#define OUTPUT_SIG_PORTB ( PINB_MASK & ~INPUT_SIG_PORTB )
+// B00011111 & ! B00011111 = 0
+#define OUTPUT_SIG_PORTC ( PINC_MASK & ~INPUT_SIG_PORTC )
+// B00011111 & ! B00010000 = B00001111
+#define OUTPUT_SIG_PORTD ( PIND_MASK & ~INPUT_SIG_PORTD )
+// B11111100 & ! B11000000 = 00111100
 union union16 {
   byte uint8[2];
   uint16_t uint16;
@@ -48,35 +55,22 @@ void stop_timer() // stop the timer
   TIMSK1 = 0; // disable timer interrupt
 }
 */
+byte last_input=0;
+byte last_output=0;
 static void PCint(uint8_t port) {
-  Serial.println(port);
+  byte input = ( INPUT_SIG_PORTB  & ~ PINB ) | ( ( INPUT_SIG_PORTC  & ~ PINC ) <<1 ) |( INPUT_SIG_PORTD  & ~ PIND );
+  byte output = ( OUTPUT_SIG_PORTC  & ~ PINC ) | (( OUTPUT_SIG_PORTD  & ~ PIND ) <<2 ); // no output on B 
+ 
+  if (!input)
+   return;
+  if (last_input==input && last_output==output)
+    return;
+  last_input=input;
+  last_output=output;
+  Serial.print(output,HEX);
+  Serial.print('\t');
+  Serial.println(input,HEX);
   return;
-  union32 data;
-  data.uint32=0;
-  data.uint8[0]=PIND;
-  data.uint8[1]=PINC;
-  data.uint8[2]=PINB;
-  data.uint8[0]|= !PIND_MASK;
-  data.uint8[1]|= !PINC_MASK;
-  data.uint8[2]|= !PINB_MASK;
-  data.uint8[3]=0xff;
-  //PINS with signal:
-  //1
-  //3
-  //9
-  //14
-  //15
-  //21
-  //22
-  //23
-
-  for(int i=0;i<32; i++)
-  {
-    if (! (data.uint32 & 1 ))
-      Serial.println(i);
-    data.uint32>>=1;
-  }
-  //Serial.print(data.uint8[1]);
 }
 
 
