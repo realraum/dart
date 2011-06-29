@@ -57,9 +57,12 @@ void stop_timer() // stop the timer
 */
 byte last_input=0;
 byte last_output=0;
-static void PCint(uint8_t port) {
-  byte input = ( INPUT_SIG_PORTB  & ~ PINB ) | ( ( INPUT_SIG_PORTC  & ~ PINC ) <<1 ) |( INPUT_SIG_PORTD  & ~ PIND );
-  byte output = ( OUTPUT_SIG_PORTC  & ~ PINC ) | (( OUTPUT_SIG_PORTD  & ~ PIND ) <<2 ); // no output on B 
+static void PCint() {
+  byte PINB_COPY = PINB;
+  byte PINC_COPY = PINC;
+  byte PIND_COPY = PIND;
+  byte output = ( OUTPUT_SIG_PORTC  & ~ PINC_COPY ) | (( OUTPUT_SIG_PORTD  & ~ PIND_COPY ) <<2 ); // no output on B 
+  byte input = ( INPUT_SIG_PORTB  & ~ PINB_COPY ) | ( ( INPUT_SIG_PORTC  & ~ PINC_COPY ) <<1 ) |( INPUT_SIG_PORTD  & ~ PIND_COPY );
  
   if (!input)
    return;
@@ -76,13 +79,13 @@ static void PCint(uint8_t port) {
 
 
 SIGNAL(PCINT0_vect) {
-  PCint(0);
+  PCint();
 }
 SIGNAL(PCINT1_vect) {
-  PCint(1);
+  PCint();
 }
 SIGNAL(PCINT2_vect) {
-  PCint(2);
+  PCint();
 }
 void setup()
 {
