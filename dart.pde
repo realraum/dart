@@ -24,6 +24,8 @@ union union16 {
   uint16_t uint16;
 }; 
 
+uint8_t zahlen[] = {115,110,46,78,51,83,82,68,99,105,41,73,35,67,50,36,113,108,44,76,49,81,114,100,98,101,37,69,34,66,102,109,111,116,52,84,47,79,57,89,106,97,33,65,42,74,38,45,112,104,40,72,48,80,0,0,103,107,43,75,39,71,70,77} ;
+
 union union32 {
   byte uint8[4];
   uint16_t uint16[2];
@@ -85,7 +87,14 @@ static void PCint() {
   value<<=3;
   while(output>>=1)
     value++;
-  Serial.println(value,HEX);
+  //Serial.println(value,HEX);
+  byte zahl = zahlen[value];
+
+  byte multi = zahl >> 5;
+  byte base = zahl & B11111;
+  Serial.print(0+multi);
+  Serial.print("\t");
+  Serial.println(0+base);
   PCICR&=  ~ B111; // Disable Interrupt
   start_timer();
 }
