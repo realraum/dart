@@ -16,7 +16,7 @@ my $term = Term::Cap->Tgetent( { OSPEED => $termios->getospeed } );
 my (@player) = @ARGV;
 
 my $numplayer = @player;
-
+my $round =0;
 my %score;
 my $current_player=1;
 while ( my $schuss = <STDIN>)
@@ -44,16 +44,20 @@ while ( my $schuss = <STDIN>)
 		}
 	} else {
     $current_player++;
+    $round++ if $current_player > $numplayer;
     $current_player=1 if $current_player > $numplayer;
 	}
-	print_score();
+	print_score($schuss);
 }
 
 
 
 sub print_score
 {
+ my ($schuss) =@_;
 # $term->Tputs('cl', 1, <STDERR>);
+ printf STDERR "\n\n";
+ printf STDERR "$schuss Runde\t$round\n\n";
 				for my $playernum (1..$numplayer)
 				{
 
