@@ -2,6 +2,8 @@
 #include <avr/interrupt.h>
 #include <inttypes.h>
 
+//Player+Handycap BTN analog 5
+#define PLAYER_SIG_PORTC B00100000
 //INPUT PINS digital 2-7 PIND
 #define PIND_MASK B11111100
 //INPUT PINS digitat 8-12 PINB
@@ -58,43 +60,49 @@ ISR(TIMER1_COMPA_vect)
   PCICR|= B111;
 }
 
-
-byte last_input=0;
-byte last_output=0;
-static void PCint() {
-  byte PINB_COPY = PINB;
-  byte PINC_COPY = PINC;
-  byte PIND_COPY = PIND;
-  byte output = ( OUTPUT_SIG_PORTC  & ~ PINC_COPY ) | (( OUTPUT_SIG_PORTD  & ~ PIND_COPY ) <<2 ); // no output on B 
-  byte input = ( INPUT_SIG_PORTB  & ~ PINB_COPY ) | ( ( INPUT_SIG_PORTC  & ~ PINC_COPY ) <<1 ) |( INPUT_SIG_PORTD  & ~ PIND_COPY );
- 
-  if (!input)
-   return;
-  if (!output)
-   return;
-  //if (last_input==input && last_output==output)
-    //return;
-  last_input=input;
-  last_output=output;
-//  Serial.print(output,HEX);
-//  Serial.print('\t');
-//  Serial.print(input,HEX);
-//  Serial.print('\t');
-
+static void send_dart(byte input,byte output)
+{
   byte value=0;
   while(input>>=1)
     value++;
   value<<=3;
   while(output>>=1)
     value++;
-  //Serial.println(value,HEX);
-  byte zahl = zahlen[value];
-
-  byte multi = zahl >> 5;
-  byte base = zahl & B11111;
+  
+	uint8_t zahl = zahlen[value];
+  uint8_t multi = zahl >> 5;
+  uint8_t base = zahl & B11111;
   Serial.print(0+multi);
   Serial.print("\t");
   Serial.println(0+base);
+}
+
+static void send_btn(byte btn)
+{
+  uint8_t value=0;
+  while(btn>>=1)
+    value++;
+  Serial.print("btn\t");
+  Serial.println(0+value);
+	
+}
+
+static void PCint() {
+  byte PINB_COPY = PINB;
+  byte PINC_COPY = PINC;
+  byte PIND_COPY = PIND;
+  byte output = ( OUTPUT_SIG_PORTC  & ~ PINC_COPY ) | (( OUTPUT_SIG_PORTD  & ~ PIND_COPY ) <<2 ); // no output on B 
+  byte input = ( INPUT_SIG_PORTB  & ~ PINB_COPY ) | ( ( INPUT_SIG_PORTC  & ~ PINC_COPY ) <<1 ) |( INPUT_SIG_PORTD  & ~ PIND_COPY );
+  byte btn = ( PLAYER_SIG_PORTC  & ~ PINC_COPY ); 
+
+  if ( input && output)
+   send_dart(input,output);
+  else if (btn)
+   send_btn(btn);
+	else
+   return;
+
+	//Timeout verhindert zu schnelle Wiederholungen
   PCICR&=  ~ B111; // Disable Interrupt
   start_timer();
 }
@@ -124,20 +132,13 @@ void setup()
   DDRC=0;
   PORTC=0;
   Serial.begin(57600);
-  //Serial.println("starting timer");
   PCMSK0=PINB_MASK & INPUT_SIG_PORTB;
-  PCMSK1=PINC_MASK & INPUT_SIG_PORTC;
+  PCMSK1=(PINC_MASK & INPUT_SIG_PORTC) |  PLAYER_SIG_PORTC;
   PCMSK2=PIND_MASK & INPUT_SIG_PORTD;
   PCICR|= B111;
-//  start_timer();
 }
 
 
-//INPUT PINS digital 2-7 PIND
-//INPUT PINS digitat 8-12 PINB
-//INPUT PINS analog 0-4 PINC
 void loop()
 {
-//  Serial.Serial.println("foo");
-//  return;
 }
