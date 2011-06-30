@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" src="jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="underscore-min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  var queryDart = function() {
+    $.getJSON('/json', function(data) {
+      var items = [];
+
+      $.each(data, function(key, val) {
+        items.push('<li id="' + key + '">' + val + '</li>');
+      });
+
+      if(items.length > 0) {
+        $('<ul/>', {
+          html: items.join('')
+        }).appendTo('body');
+      }
+    })
+    .complete(function() {
+      _.defer(queryDart);
+    });
+  }
+  
+});
+</script>
+</head>
+<body>
+<h1>Received Blahs</h1>
+</body>
+</html>
