@@ -6,6 +6,7 @@ if [ -z "$1" ]; then
 fi
 
 mode=$1
+shift
 
 ssh dart stty -F /dev/ttyDart 57600
-ssh dart cat /dev/ttyDart | ./dart-$mode.pl | ../dart-sounds/src/dart-sounds ../dart-sounds/media
+ssh dart cat /dev/ttyDart | ./dart-$mode.pl $* | ./dart-soundonly.pl | ../dart-sounds/src/dart-sounds ../dart-sounds/media > /dev/null

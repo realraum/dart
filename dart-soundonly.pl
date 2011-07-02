@@ -13,13 +13,20 @@ sub main
 		
     my ($mult,$zahl)=split /\s+/,$schuss or next;
 
-    if ($mult==2)
-    {
+    if ($mult eq "btn") {
+      print "player\n";
+      next;
+    } elsif (not $mult =~ /^\d+$/) {
+      print "$mult\n";
+      next;
+    } elsif ($mult==2) {
       print "double\n";
     } elsif ($mult==3) {
       print "triple\n";
-    } elsif ($mult eq "btn") {
-      print "player\n";
+    } 
+    if (not $zahl =~ m/\d+/)
+    {
+      print STDERR "Unexpected input $zahl\n";
       next;
     }
     ($zahl) = $zahl =~ m/(\d+)/;
