@@ -6,10 +6,12 @@ use strict;
 #my $termios = new POSIX::Termios;
 #$termios->getattr;
 #my $term = Term::Cap->Tgetent( { OSPEED => $termios->getospeed } );
+my $sieb=0;
+my @prim = qw / 2 3 5 7 11 13 17 19 /;
 
 sub gueltig{
     my ($zahl,$mult) = @_;
-    return $zahl<6 || $zahl>20;
+    return 1;
   };
 
 
@@ -45,6 +47,17 @@ while ( my $schuss = <STDIN>)
       {
         $score{$current_player}{$zahl}++;
         $self_scored++;
+        if ($sieb && ($score{$current_player}{$zahl} == 3))
+        {
+          for my $count (2..21)
+          {
+            $count = 25 if $count ==21;
+            if ( ($count % $zahl) == 0)
+            {
+              $score{$current_player}{$count} = 3;
+            }
+          }
+        }
       } else {
         $scho++;
         for my $playernum (1..$numplayer)
@@ -89,8 +102,8 @@ sub print_score
   {
     for my $playernum (1..$numplayer)
     {
-      next if not gueltig($i);
       my $zahl = $i>20?25:$i;
+      next if not gueltig($zahl);
       printf STDERR ("%2d %s    ",$zahl, '#' x $score{$playernum}{$zahl}. '-' x (3-$score{$playernum}{$zahl}));
     }
     print STDERR "\n";
