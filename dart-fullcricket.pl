@@ -44,7 +44,7 @@ while ( my $schuss = <STDIN>)
       if ($score{$current_player}{$zahl}<3)
       {
         $score{$current_player}{$zahl}++;
-        $self_scored;
+        $self_scored++;
       } else {
         $scho++;
         for my $playernum (1..$numplayer)
@@ -57,9 +57,9 @@ while ( my $schuss = <STDIN>)
         }
       }
     }
-    print $schuss if ($scored || $scho || $self_scored);
+    print $schuss if ($scored || $self_scored);
     print "scored\n" if $scored;
-    print "scho\n" if $scho;
+    print "scho\n" if $scho && not $scored;
   } elsif ($mult eq 'btn') {
     print $schuss;
     $current_player++;
