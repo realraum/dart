@@ -126,7 +126,7 @@ sub next_player
   my $self=shift;
   $self->callback('before_next_player');
   $self->{current_shoot_count}=0;
-  ($self->{current_player},my $new_round)=get_next_active_player($self->{current_player});
+  ($self->{current_player},my $new_round)=get_next_active_player($self->{player},$self->{current_player});
   $self->shout("player");
   $self->shout($self->get_current_player()->{name});
   $self->next_round() if $new_round;
