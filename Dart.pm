@@ -26,7 +26,7 @@ sub new
   $self->{round}=1;
   $self->{max_shoots_per_player}=3;
   $self->{current_shoot_count}=0;
-  
+  $self->{callbacks}=$params{callbacks}; 
   $self->callback('init');
   return $self;
 }
@@ -105,6 +105,20 @@ sub shout
   print $fh "$what\n";
 }
 
+sub get_current_player
+{
+  my $self=shift;
+  return $self->get_player($self->{current_player});
+}
+
+sub get_player
+{
+  my $self=shift;
+  my ($player_idx)=@_;
+  die if $player_idx < 0 or $player_idx >= $self->{player_count};
+  return $self->{player}[$player_idx];
+}
+
 sub next_player
 {
   my $self=shift;
@@ -112,7 +126,7 @@ sub next_player
   $self->{current_shoot_count}=0;
   ($self->{current_player},my $new_round)=get_next_active_player($self->{current_player});
   $self->shout("player");
-  $self->shout($self->{player}[$self->{current_player}]{name});
+  $self->shout($self->get_current_player()->{name});
   $self->next_round() if $new_round;
   return $self->callback('next_player');
 }
@@ -174,3 +188,5 @@ sub create_player
   #my $player = {%player_attributes};
   #return $player;
 }
+
+1;
