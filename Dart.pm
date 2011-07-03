@@ -12,7 +12,7 @@ sub new
   my (%params) =@_;
   my $self  = bless {}, $class;
   die "Missing player_names" if not ref $params{player_names} eq 'ARRAY';
-  die "Missing player_names" if @{$params{player_names}};
+  die "Missing player_names" if not @{$params{player_names}};
   $self->{player}=[];
   $self->{current_player}=0;
   my $player_counter=0;
@@ -56,7 +56,8 @@ sub run
 #  $sound_out_fh ||= STDOUT;
   $self->{sound_out_fh}=$sound_out_fh;
 
-  while ( my $shoot_data = <$data_in_fh>)
+  #while ( my $shoot_data = <$data_in_fh>)
+  while ( my $shoot_data = <STDIN>)
   {
     #print STDERR $schuss;
     my ($mult,$number) = split /\s+/, $shoot_data;
@@ -102,7 +103,8 @@ sub shout
   my $self=shift;
   my ($what)=@_;
   my $fh = $self->{sound_out_fh};
-  print $fh "$what\n";
+  print "$what\n";
+  #print $fh "$what\n";
 }
 
 sub get_current_player
@@ -115,7 +117,7 @@ sub get_player
 {
   my $self=shift;
   my ($player_idx)=@_;
-  die if $player_idx < 0 or $player_idx >= $self->{player_count};
+  die "Illegal Player Index $player_idx" if $player_idx < 0 or $player_idx >= $self->{player_count};
   return $self->{player}[$player_idx];
 }
 

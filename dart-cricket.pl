@@ -1,7 +1,8 @@
 #!/usr/bin/perl
-# use strict;
+use strict;
 use Dart;
 
+our $sieb =1; # Spielmodus Zahlensieb
 
 
 $|=1;
@@ -13,11 +14,10 @@ my $dart = new Dart(player_names=>\@player,
                       next_player=>\&next_player,
                     }
                   );
-exit $dart->run(STDIN,STDOUT);
+exit $dart->run();
 
 ### ===============================
 
-my $sieb =1; # Spielmodus Zahlensieb
 sub gueltig
 {
   my ($zahl,$mult) = @_;
@@ -44,7 +44,7 @@ sub shoot
     {
       $score->{$zahl}++;
       $self_scored++;
-      if ($sieb && ($score->{$zahl} == 3))
+      if ($main::sieb && ($score->{$zahl} == 3))
       {
         for my $count (2..21)
         {
