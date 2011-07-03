@@ -6,12 +6,12 @@ use strict;
 #my $termios = new POSIX::Termios;
 #$termios->getattr;
 #my $term = Term::Cap->Tgetent( { OSPEED => $termios->getospeed } );
-my $sieb=0;
+my $sieb=1;
 my @prim = qw / 2 3 5 7 11 13 17 19 /;
 
 sub gueltig{
     my ($zahl,$mult) = @_;
-    return 1;
+    return $zahl>1;
   };
 
 
