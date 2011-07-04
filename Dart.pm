@@ -40,7 +40,7 @@ sub init
 sub reset_game
 {
   my $self=shift;
-  my @sort_player = sort { $a->{rank} <=> $b->{rank} } @{$self->{player}};
+  my @sort_player = sort { $b->{rank} <=> $a->{rank} } @{$self->{player}};
   $self->{player}=[];
   for my $player (@sort_player)
   {
@@ -182,7 +182,7 @@ sub get_next_active_player
       $new_round=1;
     }
   }
-  while (not $players_ref->[$current_player]{active});
+  while (not $self->{player}->[$current_player]{active});
   return ($current_player,$new_round);
 }
 
@@ -196,28 +196,24 @@ sub next_round
 sub win
 {
   my $self=shift;
-  $self->deactivate_current_player($self->{player_count}-$self->{active_player_count}+1);
   $self->shout('win');
+  $self->deactivate_current_player($self->{player_count}-$self->{active_player_count}+1);
   if ($self->{active_player_count}==1)
   {
     $self->next_player();
     $self->lose();
-  } elsif (not $self->{active_player_count}) {
-    $self->end_game();
   }
 }
 
 sub lose
 {
   my $self=shift;
-  $self->deactivate_current_player($self->{active_player_count});
   $self->shout('lose');
+  $self->deactivate_current_player($self->{active_player_count});
   if ($self->{active_player_count}==1)
   {
     $self->next_player();
     $self->win();
-  } elsif (not $self->{active_player_count}) {
-    $self->end_game();
   }
 }
 
