@@ -12,6 +12,7 @@ my $dart = new Dart(player_names=>\@player,
                     callbacks => {
                       shoot=>\&shoot,   
                       next_player=>\&next_player,
+                      before_shoot=>\&print_score,
                     }
                   );
 exit $dart->run();
@@ -71,13 +72,11 @@ sub shoot
   $self->shout_last_shoot() if ($scored || $self_scored);
   $self->shout("scored") if $scored;
   $self->shout("scho") if $scho && not $scored;
-  &print_score($self);
 }
 
 sub next_player
 {
   my $self=shift;
-  &print_score($self);
 }
 
 sub print_score

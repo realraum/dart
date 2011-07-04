@@ -2,6 +2,7 @@
 package Dart;
 use strict;
 use base 'Exporter';
+use Clone;
 # new Dart(player_names=>[ 'lala', 'popo' ]);
 ## Player, Rank, Active, 
 
@@ -52,10 +53,13 @@ sub run
 {
   my $self=shift;
   my ($data_in_fh,$sound_out_fh)=@_;
+  my @history;
 #  $data_in_fh ||= STDIN;
 #  $sound_out_fh ||= STDOUT;
   $self->{sound_out_fh}=$sound_out_fh;
 
+  push @history, Clone::clone($self);
+  $self->callback('before_shoot');
   #while ( my $shoot_data = <$data_in_fh>)
   while ( my $shoot_data = <STDIN>)
   {
@@ -68,7 +72,13 @@ sub run
       $self->shoot($mult,$number);
     } elsif ($mult eq 'btn') {
       $self->next_player();
+    } elsif ($mult eq 'undo' and $#history) {
+      pop @history;
+      $self= pop @history;
+      $self->callback('undo');
     }
+    push @history, Clone::clone($self);
+    $self->callback('before_shoot');
   }
 }
 
@@ -89,7 +99,10 @@ sub shoot
 sub shout_last_shoot
 {
   my $self=shift;
-  if ($self->{current_shoot}{mult} == 2) {
+  if ($self->{current_shoot}{mult} == 2 && $self->{current_shoot}{number} == 25) {
+    $self->shout("bullseye");
+    return;
+  } elsif ($self->{current_shoot}{mult} == 2 ) {
     $self->shout('double');
   } elsif ($self->{current_shoot}{mult} == 3) {
     $self->shout('triple');
@@ -103,8 +116,13 @@ sub shout
   my $self=shift;
   my ($what)=@_;
   my $fh = $self->{sound_out_fh};
-  print "$what\n";
-  #print $fh "$what\n";
+  if ($what eq 25)
+  {
+    print "bull\n";
+  } else {
+    print "$what\n";
+  }
+#print $fh "$what\n";
 }
 
 sub get_current_player
