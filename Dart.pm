@@ -15,26 +15,38 @@ sub new
   die "Missing player_names" if not ref $params{player_names} eq 'ARRAY';
   die "Missing player_names" if not @{$params{player_names}};
   $self->{player}=[];
-  $self->{current_player}=0;
-  my $player_counter=0;
   for my $player_name (@{$params{player_names}}) 
   {
-    $player_counter++;
     $self->add_player(&create_player(name=>$player_name,rank=>undef,active=>1));
   }
-  $self->{active_player_count}=$player_counter;
-  $self->{player_count}=$player_counter;
-  $self->{round}=1;
+  $self->{callbacks}=$params{callbacks};
+  $self->init();
+  return $self;
+}
+
+
+sub init
+{
+  my $self=shift;
+  $self->{round}=0;
   $self->{max_shoots_per_player}=3;
   $self->{current_shoot_count}=0;
-  $self->{callbacks}=$params{callbacks}; 
+  $self->{current_player}=0;
+  $self->{player_count}=@{$self->{player}};
+  $self->{active_player_count}=$self->{player_count};
   $self->callback('init');
-  return $self;
 }
 
 sub reset_game
 {
   my $self=shift;
+  my @sort_player = sort { $a->{rank} <=> $b->{rank} } @{$self->{player}};
+  $self->{player}=[];
+  for my $player (@sort_player)
+  {
+    $self->add_player(&create_player(name=>$player->{name},rank=>undef,active=>1));
+  }
+  $self->init();
 }
 
 sub callback
@@ -76,6 +88,8 @@ sub run
       pop @history;
       $self= pop @history;
       $self->callback('undo');
+    } elsif ($mult eq 'reset') {
+      $self->reset_game();
     }
     push @history, Clone::clone($self);
     $self->callback('before_shoot');
@@ -144,7 +158,7 @@ sub next_player
   my $self=shift;
   $self->callback('before_next_player');
   $self->{current_shoot_count}=0;
-  ($self->{current_player},my $new_round)=get_next_active_player($self->{player},$self->{current_player});
+  ($self->{current_player},my $new_round)=$self->get_next_active_player();
   $self->shout("player");
   $self->shout($self->get_current_player()->{name});
   $self->next_round() if $new_round;
@@ -153,7 +167,9 @@ sub next_player
 
 sub get_next_active_player
 {
-  my ($players_ref,$current_player)=@_;
+  my $self=shift;
+  my $players_ref = $self->{player};
+  my $current_player = $self->{current_player};
   my $num_players=@$players_ref;
   my $new_round=0;
   do
@@ -161,7 +177,7 @@ sub get_next_active_player
     $current_player++;
     if($current_player>=$num_players)
     {
-      die "Error no remaining active players" if $new_round;
+      $self->reset_game() if $new_round;
       $current_player=0;
       $new_round=1;
     }
