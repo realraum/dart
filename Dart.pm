@@ -90,6 +90,8 @@ sub run
       $self->callback('undo');
     } elsif ($mult eq 'reset') {
       $self->reset_game();
+    } elsif ($mult eq 'quit') {
+      return;
     }
     push @history, Clone::clone($self);
     $self->callback('before_shoot');
