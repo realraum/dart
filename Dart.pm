@@ -177,6 +177,34 @@ sub next_round
   return $self->callback('next_round');
 }
 
+sub win
+{
+  my $self=shift;
+  $self->deactivate_current_player($self->{player_count}-$self->{active_player_count}+1);
+  $self->shout('win');
+  if ($self->{active_player_count}==1)
+  {
+    $self->next_player();
+    $self->lose();
+  } elsif (not $self->{active_player_count}) {
+    $self->end_game();
+  }
+}
+
+sub lose
+{
+  my $self=shift;
+  $self->deactivate_current_player($self->{active_player_count});
+  $self->shout('lose');
+  if ($self->{active_player_count}==1)
+  {
+    $self->next_player();
+    $self->win();
+  } elsif (not $self->{active_player_count}) {
+    $self->end_game();
+  }
+}
+
 sub deactivate_current_player
 {
   my $self=shift;
@@ -191,6 +219,7 @@ sub deactivate_current_player
 sub end_game
 {
   my $self=shift;
+  $self->shout('end_game');
   return $self->callback('end_game');
 }
 
