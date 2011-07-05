@@ -15,8 +15,7 @@ stty -echo
 
 ssh dart stty -F /dev/ttyDart 57600
 ssh dart cat /dev/ttyDart  >$FIFO &
-exec 42<$FIFO
-./eet 42 | ./dart-$mode.pl $* | ./dart-soundonly.pl | ../dart-sounds/src/dart-sounds ../dart-sounds/media > /dev/null
+./eet $FIFO | ./dart-$mode.pl $* | ./dart-soundonly.pl | ../dart-sounds/src/dart-sounds ../dart-sounds/media > /dev/null
 rm -f $FIFO
 
 exit 0

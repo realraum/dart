@@ -3,7 +3,7 @@
  *
  *
  *  Copyright (C) 2011 Christian Pointner <equinox@realraum.at>
- *                         
+ *
  *  This file is part of eet.
  *
  *  eet is free software: you can redistribute it and/or modify
@@ -21,8 +21,10 @@
  */
 
 #include <sys/select.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
 #include <unistd.h>
-
 #include <stdio.h>
 
 int write_buf(char* buf, int len)
@@ -32,7 +34,7 @@ int write_buf(char* buf, int len)
     int w = write(1, &(buf[i]), len - i);
     if(w < 0)
       return w;
-    
+
     i+=w;
   }
   return 0;
@@ -41,12 +43,12 @@ int write_buf(char* buf, int len)
 int main(int argc, char* argv[])
 {
   if(argc < 2) {
-    fprintf(stderr, "Please specify fd number\n");
+    fprintf(stderr, "Please specify a path to the fifo\n");
     return 1;
   }
-  int fd = atoi(argv[1]);
-  if(fd < 3) {
-    fprintf(stderr, "the specified fd is not valid (must be higher than 2\n");
+  int fd = open(argv[1], O_RDONLY);
+  if(fd < 0) {
+    perror("open()");
     return 2;
   }
 
@@ -75,7 +77,7 @@ int main(int argc, char* argv[])
           ret = write_buf(buf, r);
           if(ret) return ret;
         }
-      } 
+      }
     }
   }
 
