@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ -z "$1" ]; then
-  echo "Usage $0 <mode>"
+  echo "Usage $0 <mode> [<param1> [<param2> ...]]"
   exit 1
 fi
 
