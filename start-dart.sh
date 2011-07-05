@@ -8,14 +8,21 @@ fi
 mode=$1
 shift
 
-FIFO=/tmp/dart.fifo
-rm -f $FIFO
+FIFO_D=`mktemp -d`
+FIFO=$FIFO_D/dart.fifo
 mkfifo $FIFO
-stty -echo
 
+trap signal_handler INT TERM
+
+signal_handler()
+{
+  rm -rf $FIFO_D
+}
+
+stty -echo
 ssh dart stty -F /dev/ttyDart 57600
 ssh dart cat /dev/ttyDart  >$FIFO &
 ./eet $FIFO | ./dart-$mode.pl $* | ./dart-soundonly.pl | ../dart-sounds/src/dart-sounds ../dart-sounds/media > /dev/null
-rm -f $FIFO
+rm -rf $FIFO_D
 
 exit 0
