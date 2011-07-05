@@ -188,6 +188,12 @@ sub get_next_active_player
   return ($current_player,$new_round);
 }
 
+sub finish_player_round
+{
+  my $self=shift;
+  $self->{current_shoot_count} = $self->{max_shoots_per_player};
+}
+
 sub next_round
 {
   my $self=shift;
