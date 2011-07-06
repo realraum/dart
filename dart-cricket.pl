@@ -51,6 +51,7 @@ sub win_condition
   my $score = $self->get_current_player()->{score}->{0};
   for my $player_idx (0..($self->{player_count}-1))
   {
+    next if not $self->get_player($player_idx)->{active};
     return if $score > $self->get_player($player_idx)->{score}->{0};
   }
   return 1;
