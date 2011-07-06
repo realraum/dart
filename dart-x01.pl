@@ -49,6 +49,7 @@ sub shoot
   else
   {
     $self->shout("miss");
+    $self->get_current_player()->{score} = $self->get_current_player()->{last_score};
     $self->finish_player_round();
   }
 }
@@ -56,6 +57,7 @@ sub shoot
 sub next_player
 {
   my $self=shift;
+  $self->get_current_player()->{last_score} = $self->get_current_player()->{score};
 }
 
 sub print_score
