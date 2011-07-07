@@ -168,14 +168,14 @@ sub print_score
 {
   my ($self)=@_;
   my $player = $self->get_current_player();
-  my $sel_x= $player()->{sel_x};
-  my $sel_y= $player()->{sel_y};
-  my $mult_x=$player()->{mult_x};
-  my $mult_y=$player()->{mult_y};
+  my $sel_x= $player->{sel_x};
+  my $sel_y= $player->{sel_y};
+  my $mult_x=$player->{mult_x};
+  my $mult_y=$player->{mult_y};
   printf STDERR "Runde\t%d\n\n",$self->{round};
-  printf STDERR "Player\t%s\t\tSchuss\t%d\n\n",$player()->{name},$self->{current_shoot_count};
-  printf STDERR "x:  %dx%2d\n",$player()->{mult_x},$player()->{sel_x};
-  printf STDERR "y:  %dx%2d\n",$player()->{mult_y},$player()->{sel_y};
+  printf STDERR "Player\t%s\t\tSchuss\t%d\n\n",$player->{name},$self->{current_shoot_count};
+  printf STDERR "x:  %dx%2d\n",$player->{mult_x},$player->{sel_x};
+  printf STDERR "y:  %dx%2d\n",$player->{mult_y},$player->{sel_y};
 
     print STDERR "  ";
     for my $y (@main::y)
