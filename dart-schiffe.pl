@@ -6,7 +6,7 @@ our @x= qw/ 20 1 18 4 13 6 10 15 2 17 /;
 our @y = qw/ 3 19 7 16 8 11 14 9 12 5 /;
 our %x = array_to_hash(@x);
 our %y = array_to_hash(@y);
-our @schiffe = reverse sort qw/ 3 4 5 /;
+our @schiffe = reverse sort qw/ 4 5 6 /;
 
 $|=1;
 my (@player) = @ARGV;
@@ -44,6 +44,7 @@ sub init
     $self->get_player($player_idx)->{sel_y}=0;
     $self->get_player($player_idx)->{mult_x}=0;
     $self->get_player($player_idx)->{mult_y}=0;
+    delete ($self->get_player($player_idx)->{last_hit});
     for my $x (@main::x)
     {
       for my $y (@main::y)
@@ -54,26 +55,26 @@ sub init
     for my $schiff (@main::schiffe)
     {
       my $valid=0;
-      while(not $valid)
+      VALIDSHIP: while(not $valid)
       {
         my $x_start_idx = int(rand(scalar @main::x));
         my $y_start_idx = int(rand(scalar @main::y));
         my $direction = int(rand(2));
-        my $x_stop_idx = $x_start_idx + $schiff * $direction;
-        my $y_stop_idx = $y_start_idx + $schiff * (1-$direction);
-        next if ($x_stop_idx > $#main::x) or ($y_stop_idx > $#main::y);
-        for my $x_idx ($x_start_idx..$x_stop_idx)
+        my $x_stop_idx = $x_start_idx + ($schiff-1) * $direction;
+        my $y_stop_idx = $y_start_idx + ($schiff-1) * (1-$direction);
+        #next if ($x_stop_idx > $#main::x) or ($y_stop_idx > $#main::y);
+        for my $x_idx ($x_start_idx-1 .. $x_stop_idx+1)
         {
-          for my $y_idx ($y_start_idx .. $y_stop_idx)
+          for my $y_idx ($y_start_idx-1 .. $y_stop_idx+1)
           {
-            next if $self->get_player($player_idx)->{score}->{$main::x[$x_idx]}{$main::y[$y_idx]};
+            next VALIDSHIP if $self->get_player($player_idx)->{score}->{$main::x[$x_idx % @main::x]}{$main::y[$y_idx % @main::y]};
           }
         }
-        for my $x_idx ($x_start_idx..$x_stop_idx)
+        for my $x_idx ($x_start_idx .. $x_stop_idx)
         {
           for my $y_idx ($y_start_idx .. $y_stop_idx)
           {
-            $self->get_player($player_idx)->{score}->{$main::x[$x_idx]}{$main::y[$y_idx]}="s";
+            $self->get_player($player_idx)->{score}->{$main::x[$x_idx % @main::x]}{$main::y[$y_idx % @main::y]}="s";
           }
         }
         $valid=1;
@@ -100,6 +101,7 @@ sub shoot
   my $self=shift;
   my ($mult,$zahl)=@_;
   my $player=$self->get_current_player();
+  delete ($player->{last_hit});
 
   if ( (not $main::x{$zahl}) and (not $main::y{$zahl}) )
   {
@@ -119,6 +121,7 @@ sub shoot
     my $y_middle = $player->{sel_y};
     my $mult_x = $player->{mult_x};
     my $mult_y = $player->{mult_y};
+    $player->{last_hit}={sel_x=>$x_middle, sel_y=>$y_middle, mult_x=>$mult_x, mult_y=>$mult_y};
     $player->{sel_x}=0;
     $player->{sel_y}=0;
     $player->{mult_x}=0;
@@ -151,10 +154,10 @@ sub shoot
     if ($sound{scored})
     {
       $self->shout("scored");
-    } elsif ($sound{scho}) {
-      $self->shout("scho");
     } elsif ($sound{miss}) {
       $self->shout("miss");
+    } elsif ($sound{scho}) {
+      $self->shout("scho");
     }
 
   }
@@ -164,14 +167,15 @@ sub shoot
 sub print_score
 {
   my ($self)=@_;
-  my $sel_x=$self->get_current_player()->{sel_x};
-  my $sel_y=$self->get_current_player()->{sel_y};
-  my $mult_x=$self->get_current_player()->{mult_x};
-  my $mult_y=$self->get_current_player()->{mult_y};
+  my $player = $self->get_current_player();
+  my $sel_x= $player()->{sel_x};
+  my $sel_y= $player()->{sel_y};
+  my $mult_x=$player()->{mult_x};
+  my $mult_y=$player()->{mult_y};
   printf STDERR "Runde\t%d\n\n",$self->{round};
-  printf STDERR "Player\t%s\t\tSchuss\t%d\n\n",$self->get_current_player()->{name},$self->{current_shoot_count};
-  printf STDERR "x:  %dx%2d\n",$self->get_current_player()->{mult_x},$self->get_current_player()->{sel_x};
-  printf STDERR "y:  %dx%2d\n",$self->get_current_player()->{mult_y},$self->get_current_player()->{sel_y};
+  printf STDERR "Player\t%s\t\tSchuss\t%d\n\n",$player()->{name},$self->{current_shoot_count};
+  printf STDERR "x:  %dx%2d\n",$player()->{mult_x},$player()->{sel_x};
+  printf STDERR "y:  %dx%2d\n",$player()->{mult_y},$player()->{sel_y};
 
     print STDERR "  ";
     for my $y (@main::y)
