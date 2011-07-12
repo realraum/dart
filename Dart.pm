@@ -81,6 +81,7 @@ sub run
     if ($mult =~/^\d$/)
     {
       die "Unexpected input" if not $number=~/^\d+$/;
+      next if not $self->{current_shoot_count} < $self->{max_shoots_per_player};
       $self->shoot($mult,$number);
     } elsif ($mult eq 'btn') {
       $self->next_player();
@@ -92,6 +93,9 @@ sub run
       $self->reset_game();
     } elsif ($mult eq 'quit') {
       return;
+    } else {
+      # shitty input
+      next;
     }
     push @history, Clone::clone($self);
     $self->callback('before_shoot');
@@ -209,7 +213,8 @@ sub win
   if ($self->{active_player_count}==1)
   {
     $self->next_player();
-    $self->lose();
+    $self->shout('lose');
+    $self->deactivate_current_player($self->{player_count}-$self->{active_player_count}+1);
   }
 }
 
@@ -221,7 +226,8 @@ sub lose
   if ($self->{active_player_count}==1)
   {
     $self->next_player();
-    $self->win();
+    $self->shout('win');
+    $self->deactivate_current_player($self->{active_player_count});
   }
 }
 
