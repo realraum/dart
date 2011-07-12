@@ -105,8 +105,23 @@ int main(int argc, char* argv[])
 
   if(setup_tty(fd)) return 3;
 
+  fd_set rfds, efds;
+  
   char buf[100];
   for(;;) {
+    FD_ZERO(&rfds);
+    FD_SET(fd, &rfds);
+    FD_ZERO(&efds);
+    FD_SET(1, &efds);
+
+    int s = select(fd+1, &rfds, NULL, &efds, NULL);
+    if(s < 0) {
+      perror("select()");
+      return s;
+    }
+    if(FD_ISSET(1, &efds)) return 0;
+    if(!FD_ISSET(fd, &rfds)) continue;
+
     ssize_t r = read(fd, buf, sizeof(buf));
     if(r <= 0) {
       perror("read()");
