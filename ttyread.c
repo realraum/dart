@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  int fd = open(argv[1], O_RDONLY);
+  int fd = open(argv[1], O_RDONLY | O_NONBLOCK | O_NOCTTY);
   if(fd < 0) {
     perror("open()");
     return 2;
@@ -106,7 +106,6 @@ int main(int argc, char* argv[])
   if(setup_tty(fd)) return 3;
 
   fd_set rfds, efds;
-  
   char buf[100];
   for(;;) {
     FD_ZERO(&rfds);
