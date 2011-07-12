@@ -51,7 +51,6 @@ int setup_tty(int fd)
   }
 
   tmio.c_lflag &= ~ECHO;
-  tmio.c_lflag &= ~ISIG;
   tmio.c_lflag |= CLOCAL;
 
   tmio.c_iflag &= ~ICRNL;
@@ -109,7 +108,7 @@ int main(int argc, char* argv[])
   char buf[100];
   for(;;) {
     ssize_t r = read(fd, buf, sizeof(buf));
-    if(r < 0 ) {
+    if(r <= 0) {
       perror("read()");
       return r;
     }
