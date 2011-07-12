@@ -20,8 +20,7 @@ signal_handler()
 }
 
 stty -echo
-ssh dart stty -F /dev/ttyDart 57600
-ssh dart cat /dev/ttyDart  >$FIFO &
+ssh dart ttyread /dev/ttyDart  >$FIFO &
 ./eet $FIFO | ./dart-$mode.pl $* | ../dart-sounds/src/dart-sounds ../dart-sounds/media > /dev/null
 rm -rf $FIFO_D
 

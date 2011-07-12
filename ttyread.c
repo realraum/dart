@@ -31,7 +31,7 @@
 int setup_tty(int fd)
 {
   struct termios tmio;
-  
+
   int ret = tcgetattr(fd, &tmio);
   if(ret) {
     perror("tcgetattr()");
@@ -51,14 +51,21 @@ int setup_tty(int fd)
   }
 
   tmio.c_lflag &= ~ECHO;
+  tmio.c_lflag &= ~ISIG;
   tmio.c_lflag |= CLOCAL;
+
+  tmio.c_iflag &= ~ICRNL;
+  tmio.c_iflag &= ~IGNCR;
+  tmio.c_iflag |= IGNBRK | BRKINT;
+
+  tmio.c_cflag |= CLOCAL;
 
   ret = tcsetattr(fd, TCSANOW, &tmio);
   if(ret) {
     perror("tcsetattr()");
     return ret;
   }
-  
+
   ret = tcflush(fd, TCIFLUSH);
   if(ret) {
     perror("tcflush()");
@@ -101,13 +108,19 @@ int main(int argc, char* argv[])
 
   char buf[100];
   for(;;) {
-    int r = read(fd, buf, sizeof(buf));
-    if(r <=0 ) return r;
-    
-    int i;
+    ssize_t r = read(fd, buf, sizeof(buf));
+    if(r < 0 ) {
+      perror("read()");
+      return r;
+    }
+
+    ssize_t i;
     for(i=0; i < r;) {
-      int w = write(fd, &(buf[i]), r - i);
-      if(w < 0) return w;
+      ssize_t w = write(1, &(buf[i]), r - i);
+      if(w < 0) {
+        perror("write()");
+        return w;
+      }
       i+=w;
     }
   }
