@@ -20,6 +20,7 @@ signal_handler()
 }
 
 stty -echo
+ssh dart killall ttyread >/dev/null 2>&1
 ssh dart ttyread /dev/ttyDart  >$FIFO &
 ./eet $FIFO | ./dart-$mode.pl $* | ../dart-sounds/src/dart-sounds ../dart-sounds/media > /dev/null
 rm -rf $FIFO_D
