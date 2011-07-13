@@ -155,6 +155,7 @@ sub shoot
   my $player=$self->get_current_player();
   delete ($player->{last_hit});
   $player->{highlight}{shoot}=Clone::clone($self->{empty_matrix});
+  $player->{highlight}{selected}=Clone::clone($self->{empty_matrix});
 
   if ( (not $main::x{$zahl}) and (not $main::y{$zahl}) )
   {
@@ -172,7 +173,6 @@ sub shoot
   $self->shout_last_shoot();
   if ($player->{sel_x} && $player->{sel_y})
   {
-    $player->{highlight}{selected}=Clone::clone($self->{empty_matrix});
     my $x_middle = $player->{sel_x};
     my $y_middle = $player->{sel_y};
     my $mult_x = $player->{mult_x};
