@@ -173,6 +173,7 @@ sub shoot
   $self->shout_last_shoot();
   if ($player->{sel_x} && $player->{sel_y})
   {
+    $player->{highlight}{selected}=Clone::clone($self->{empty_matrix});
     my $x_middle = $player->{sel_x};
     my $y_middle = $player->{sel_y};
     my $mult_x = $player->{mult_x};
