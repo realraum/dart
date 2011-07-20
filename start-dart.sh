@@ -5,6 +5,8 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+MYSELF=`readlink -f "$0"`
+MYPATH=`dirname "$MYSELF"`
 mode=$1
 shift
 
@@ -22,7 +24,7 @@ signal_handler()
 stty -echo
 ssh dart killall ttyread 2>&1
 ssh dart ttyread /dev/ttyDart  >$FIFO &
-./eet $FIFO | ./dart-$mode.pl $* | ../dart-sounds/src/dart-sounds ../dart-sounds/media > /dev/null
+$MYPATH/eet $FIFO | perl -I $MYPATH $MYPATH/dart-$mode.pl $* | $MYPATH/../dart-sounds/src/dart-sounds $MYPATH/../dart-sounds/media > /dev/null
 rm -rf $FIFO_D
 
 exit 0
