@@ -25,6 +25,18 @@ sub new
 }
 
 
+sub get_color
+{
+  my $self=shift;
+  my ($mul,$zahl)=@_;
+  my @zahlen =  qw/20 1 18 4 13 6 10 15 2 17 3 19 7 16 8 11 14 9 12 5/;
+  my $counter=0;
+  $counter++ while($zahl != shift @zahlen and @zahlen);
+  $mul=0 if $mul >1;
+  my $result = ($counter+$mul )%2;
+  return $result;
+}
+
 sub init
 {
   my $self=shift;
