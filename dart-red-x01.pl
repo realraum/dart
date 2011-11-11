@@ -39,19 +39,16 @@ sub shoot
 {
   my $self=shift;
   my ($mult,$zahl)=@_;
-  my $color = $self->get_color($mult,$zahl)?1:-1;  
-  if ($self->get_current_player()->{score} >= $mult * $zahl)
+  my $color = $self->get_color($mult,$zahl)?1:-1; 
+  if ($color <0)
   {
-    $self->get_current_player()->{score} -= $color *$mult * $zahl;
-    $self->shout_last_shoot();
-    $self->win() if &win_condition($self);
+    $self->shout("plus");
+  }else{
+    $self->shout("minus");
   }
-  else
-  {
-    $self->shout("miss");
-    $self->get_current_player()->{score} = $self->get_current_player()->{last_score};
-    $self->finish_player_round();
-  }
+  $self->get_current_player()->{score} -= $color *$mult * $zahl;
+  $self->shout_last_shoot();
+  $self->win() if &win_condition($self);
 }
 
 sub next_player
