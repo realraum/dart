@@ -24,6 +24,12 @@ sub new
   return $self;
 }
 
+sub trace_shoot
+{
+  my $self=shift;
+  my ($property)=@_;
+  push @{$self->{trace_shoot}},$property;
+}
 
 sub get_color
 {
@@ -46,6 +52,7 @@ sub init
   $self->{current_player}=0;
   $self->{player_count}=@{$self->{player}};
   $self->{active_player_count}=$self->{player_count};
+  $self->{trace_shoot_data}={};
   $self->callback('init');
 }
 
@@ -122,10 +129,32 @@ sub shoot
   {
     $self->{current_shoot}={mult=>$mult,number=>$number};
     $self->{current_shoot_count}++;
-    return $self->callback('shoot',$mult,$number);
+    my $result = $self->callback('shoot',$mult,$number);
+    for my $trace_prop ( @{$self->{trace_shoot}})
+    {
+      push @{$self->{trace_shoot_data}{$self->{current_player}}},$self->get_current_player()->{$trace_prop};
+    }
+    return $result;
   } else {
     return 0;
   }
+}
+
+sub plot_trace_shoot
+{
+  my $self=shift;
+  my $datastr;
+  for my $player_num (keys %{$self->{trace_shoot_data}})
+  {
+    $datastr.=$self->get_player($player_num)->{name}.':';
+    $datastr.= join ',',@{$self->{trace_shoot_data}{$player_num}};
+    $datastr.="\n";
+  }
+  chomp $datastr;
+  my $plotter;
+  open($plotter,"|./plot.py") or return;
+  print $plotter $datastr;
+  close $plotter;
 }
 
 sub shout_last_shoot

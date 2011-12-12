@@ -13,8 +13,10 @@ my $dart = new Dart(player_names=>\@player,
                       next_player=>\&next_player,
                       before_shoot=>\&print_score,
                       init=>\&init,
+                      end_game=>\&Dart::plot_trace_shoot,
                     }
                   );
+$dart->trace_shoot('score');
 exit $dart->run();
 
 ### ===============================
@@ -22,7 +24,6 @@ exit $dart->run();
 sub init
 {
   my $self=shift;
-
   for my $player_idx (0..($self->{player_count}-1))
   {
     $self->get_player($player_idx)->{score} = $maxScore;
