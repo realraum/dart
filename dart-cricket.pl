@@ -6,9 +6,10 @@ our $sieb =1; # Spielmodus Zahlensieb
 
 
 $|=1;
-my (@player) = @ARGV;
+my ($shout_fifo, @player) = @ARGV;
 
 my $dart = new Dart(player_names=>\@player, 
+                    shout_fifo=>$shout_fifo,
                     callbacks => {
                       shoot=>\&shoot,   
                       next_player=>\&next_player,
@@ -115,25 +116,25 @@ sub next_player
 sub print_score
 {
   my ($self)=@_;
-  printf STDERR "\n\n";
-  printf STDERR "Runde\t%d\n\n",$self->{round};
+  printf "\n\n";
+  printf "Runde\t%d\n\n",$self->{round};
   for my $player_idx (0..($self->{player_count}-1))
   {
-    printf STDERR "%s\t", ($player_idx == $self->{current_player})?"(".$self->get_player($player_idx)->{name}.")":$self->get_player($player_idx)->{name};
+    printf "%s\t", ($player_idx == $self->{current_player})?"(".$self->get_player($player_idx)->{name}.")":$self->get_player($player_idx)->{name};
   }
-  print STDERR "\n";
+  print "\n";
   for my $i (1..21)
   {
     for my $player_idx (0..($self->{player_count}-1))
     {
       my $zahl = $i>20?25:$i;
       next if not gueltig($zahl);
-      printf STDERR ("%2d %s    ",$zahl, '#' x $self->get_player($player_idx)->{score}->{$zahl}. '-' x (3-$self->get_player($player_idx)->{score}->{$zahl}));
+      printf ("%2d %s    ",$zahl, '#' x $self->get_player($player_idx)->{score}->{$zahl}. '-' x (3-$self->get_player($player_idx)->{score}->{$zahl}));
     }
-    print STDERR "\n";
+    print "\n";
   }
   for my $player_idx (0..($self->{player_count}-1))
   {
-    printf STDERR ("%3d\t", $self->get_player($player_idx)->{score}->{0});
+    printf ("%3d\t", $self->get_player($player_idx)->{score}->{0});
   }
 }

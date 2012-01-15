@@ -5,9 +5,10 @@ use Dart;
 $|=1;
 my $maxScore = $0;
 $maxScore =~ s/.*\-(\d+).pl$/\1/;
-my (@player) = @ARGV;
+my ($shout_fifo, @player) = @ARGV;
 
 my $dart = new Dart(player_names=>\@player, 
+                    shout_fifo=>$shout_fifo,
                     callbacks => {
                       shoot=>\&shoot,   
                       next_player=>\&next_player,
@@ -15,6 +16,8 @@ my $dart = new Dart(player_names=>\@player,
                       init=>\&init,
                     }
                   );
+
+
 exit $dart->run();
 
 ### ===============================
@@ -63,16 +66,16 @@ sub next_player
 sub print_score
 {
   my ($self)=@_;
-  printf STDERR "\n\n";
-  printf STDERR "Runde\t%d\n\n",$self->{round};
+  printf "\n\n";
+  printf "Runde\t%d\n\n",$self->{round};
   for my $player_idx (0..($self->{player_count}-1))
   {
-    printf STDERR "%s\t", ($player_idx == $self->{current_player})?"(".$self->get_player($player_idx)->{name}.")":$self->get_player($player_idx)->{name};
+    printf "%s\t", ($player_idx == $self->{current_player})?"(".$self->get_player($player_idx)->{name}.")":$self->get_player($player_idx)->{name};
   }
-  print STDERR "\n";
+  print "\n";
   for my $player_idx (0..($self->{player_count}-1))
   {
-    printf STDERR "%s\t", $self->get_player($player_idx)->{score};
+    printf "%s\t", $self->get_player($player_idx)->{score};
   }
-  print STDERR "\n";
+  print "\n";
 }

@@ -11,8 +11,10 @@ mode=$1
 shift
 
 FIFO_D=`mktemp -d`
-FIFO=$FIFO_D/dart.fifo
-mkfifo $FIFO
+FIFO_IN=$FIFO_D/dart-in.fifo
+FIFO_SHOUT=$FIFO_D/dart-out.fifo
+mkfifo $FIFO_IN
+mkfifo $FIFO_SHOUT
 
 trap signal_handler INT TERM
 
@@ -23,9 +25,10 @@ signal_handler()
 
 stty -echo
 ssh dart killall ttyread 2>&1
-ssh dart ttyread /dev/ttyDart  >$FIFO &
+ssh dart ttyread /dev/ttyDart  >$FIFO_IN &
 cd $MYPATH
-$MYPATH/eet $FIFO | perl -I $MYPATH $MYPATH/dart-$mode.pl $* | $MYPATH/../dart-sounds/src/dart-sounds $MYPATH/../dart-sounds/media > /dev/null
+$MYPATH/../dart-sounds/src/dart-sounds $MYPATH/../dart-sounds/media > /dev/null <$FIFO_SHOUT &
+$MYPATH/eet $FIFO_IN | perl -I $MYPATH $MYPATH/dart-$mode.pl $FIFO_SHOUT $*
 rm -rf $FIFO_D
 
 exit 0

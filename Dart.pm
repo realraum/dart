@@ -3,6 +3,10 @@ package Dart;
 use strict;
 use base 'Exporter';
 use Clone;
+use POSIX;
+use Term::Cap;
+use FileHandle;
+
 # new Dart(player_names=>[ 'lala', 'popo' ]);
 ## Player, Rank, Active, 
 
@@ -20,6 +24,13 @@ sub new
     $self->add_player(&create_player(name=>$player_name,rank=>undef,active=>1));
   }
   $self->{callbacks}=$params{callbacks};
+
+  open($self->{shout_fifo}, '>>', $params{shout_fifo}) or die $!;
+  $self->{shout_fifo}->autoflush(1);
+
+  my $termios = new POSIX::Termios;
+  $termios->getattr;
+  $self->{term} = Term::Cap->Tgetent( { OSPEED => $termios->getospeed } );
   $self->init();
   return $self;
 }
@@ -83,19 +94,14 @@ sub callback
 sub run
 {
   my $self=shift;
-  my ($data_in_fh,$sound_out_fh)=@_;
   my @history;
-#  $data_in_fh ||= STDIN;
-#  $sound_out_fh ||= STDOUT;
-  $self->{sound_out_fh}=$sound_out_fh;
 
   push @history, Clone::clone($self);
-  print "\033[2J";
+  my $STDOUT = new FileHandle '>-';
+  $self->{term}->Tputs('cl', 1, $STDOUT);
   $self->callback('before_shoot');
-  #while ( my $shoot_data = <$data_in_fh>)
   while ( my $shoot_data = <STDIN>)
   {
-    #print STDERR $schuss;
     my ($mult,$number) = split /\s+/, $shoot_data;
 
     if ($mult =~/^\d$/)
@@ -118,7 +124,7 @@ sub run
       next;
     }
     push @history, Clone::clone($self);
-    print "\033[2J";
+    $self->{term}->Tputs('cl', 1, $STDOUT);
     $self->callback('before_shoot');
   }
 }
@@ -178,14 +184,13 @@ sub shout
 {
   my $self=shift;
   my ($what)=@_;
-  my $fh = $self->{sound_out_fh};
+  my $fh = $self->{shout_fifo};
   if ($what eq 25)
   {
-    print "bull\n";
+    print $fh "bull\n";
   } else {
-    print "$what\n";
+    print $fh "$what\n";
   }
-#print $fh "$what\n";
 }
 
 sub get_current_player

@@ -10,10 +10,10 @@ our %y = array_to_hash(@y);
 our @schiffe = reverse sort qw/ 4 5 6 /;
 
 $|=1;
-my (@player) = @ARGV;
-
+my ($shout_fifo, @player) = @ARGV;
 
 my $dart = new Dart(player_names=>\@player, 
+                    shout_fifo=>$shout_fifo,
                     callbacks => {
                       shoot=>\&shoot,   
                       before_shoot=>\&print_score,
@@ -205,9 +205,9 @@ sub prcl
 {
   my $self = shift;
   my ($color,@what)=@_;
-  print STDERR color($color) if defined $color;
-  print STDERR @what;
-  print STDERR color('reset');
+  print color($color) if defined $color;
+  print @what;
+  print color('reset');
 }
 
 sub get_color
@@ -243,20 +243,20 @@ sub print_score
   my $sel_y= $player->{sel_y};
   my $mult_x=$player->{mult_x};
   my $mult_y=$player->{mult_y};
-  printf STDERR "Runde\t%d\n\n",$self->{round};
-  printf STDERR "Player\t%s\t\tSchuss\t%d\n\n",$player->{name},$self->{current_shoot_count};
-  printf STDERR "x:  %dx%2d\n",$player->{mult_x},$player->{sel_x};
-  printf STDERR "y:  %dx%2d\n",$player->{mult_y},$player->{sel_y};
+  printf "Runde\t%d\n\n",$self->{round};
+  printf "Player\t%s\t\tSchuss\t%d\n\n",$player->{name},$self->{current_shoot_count};
+  printf "x:  %dx%2d\n",$player->{mult_x},$player->{sel_x};
+  printf "y:  %dx%2d\n",$player->{mult_y},$player->{sel_y};
 
-  print STDERR "  ";
+  print "  ";
   for my $y (@main::y)
   {
-    printf STDERR " %2d",$y;
+    printf " %2d",$y;
   }
-  print STDERR "\n";
+  print "\n";
   for my $x (@main::x)
   {
-    printf STDERR "%2d",$x;
+    printf "%2d",$x;
     for my $y (@main::y)
     {
       my $field = $self->get_current_player()->{score}->{$x}{$y};
@@ -267,13 +267,13 @@ sub print_score
         &prxy($self,$x,$y,"  .");
       }
     }
-    printf STDERR "  %d",$x;
-    print STDERR "\n";
+    printf "  %d",$x;
+    print "\n";
   }
-  print STDERR "  ";
+  print "  ";
   for my $y (@main::y)
   {
-    printf STDERR " %2d",$y;
+    printf " %2d",$y;
   }
-  print STDERR "\n\n";
+  print "\n\n";
 }
