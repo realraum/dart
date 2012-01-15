@@ -90,6 +90,7 @@ sub run
   $self->{sound_out_fh}=$sound_out_fh;
 
   push @history, Clone::clone($self);
+  print "\033[2J";
   $self->callback('before_shoot');
   #while ( my $shoot_data = <$data_in_fh>)
   while ( my $shoot_data = <STDIN>)
@@ -117,6 +118,7 @@ sub run
       next;
     }
     push @history, Clone::clone($self);
+    print "\033[2J";
     $self->callback('before_shoot');
   }
 }
