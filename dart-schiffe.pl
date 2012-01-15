@@ -219,7 +219,7 @@ sub get_color
   {
     return 'bold red';
   } elsif ($player->{highlight}{selected}{$x}{$y}) {
-    return 'bold green';
+    return 'black on_green';
   } elsif ($player->{score}{$x}{$y} eq 'o') {
     return 'blue';
   } elsif ($player->{score}{$x}{$y} eq 'X') {
